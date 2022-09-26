@@ -1,0 +1,124 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Get_blob_content_(V2)": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureblob']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/v2/datasets/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/files/@{encodeURIComponent(encodeURIComponent(variables('blobListPaths')))}/content",
+                    "queries": {
+                        "inferContentType": true
+                    }
+                },
+                "runAfter": {
+                    "Initialize_variable": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Initialize_variable": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "blobListPaths",
+                            "type": "string",
+                            "value": "@triggerBody()?['Path']"
+                        }
+                    ]
+                },
+                "runAfter": {},
+                "type": "InitializeVariable"
+            },
+            "Send_an_email_(V2)": {
+                "inputs": {
+                    "body": {
+                        "Attachments": [
+                            {
+                                "ContentBytes": "@{base64(body('Get_blob_content_(V2)'))}",
+                                "Name": "@triggerBody()?['Name']"
+                            }
+                        ],
+                        "Body": "<p>A new advisor report @{triggerBody()?['Name']} is available.</p>",
+                        "Importance": "Normal",
+                        "Subject": "Advisor Report Available",
+                        "To": "name@domain.com"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['office365']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/v2/Mail"
+                },
+                "runAfter": {
+                    "Get_blob_content_(V2)": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "When_a_blob_is_added_or_modified_(properties_only)_(V2)": {
+                "evaluatedRecurrence": {
+                    "frequency": "Minute",
+                    "interval": 60
+                },
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureblob']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/v2/datasets/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/triggers/batch/onupdatedfile",
+                    "queries": {
+                        "checkBothCreatedAndModifiedDateTime": false,
+                        "folderId": "JTJmcmVwb3J0cw==",
+                        "maxFileCount": 1
+                    }
+                },
+                "metadata": {
+                    "JTJmcmVwb3J0cw==": "/reports"
+                },
+                "recurrence": {
+                    "frequency": "Minute",
+                    "interval": 60
+                },
+                "splitOn": "@triggerBody()",
+                "type": "ApiConnection"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "azureblob": {
+                    "connectionId": "/subscriptions/<redacted>/resourceGroups/pfx35-mgmt/providers/Microsoft.Web/connections/azureblob",
+                    "connectionName": "azureblob",
+                    "id": "/subscriptions/<redacted>/providers/Microsoft.Web/locations/centralus/managedApis/azureblob"
+                },
+                "office365": {
+                    "connectionId": "/subscriptions/<redacted>/resourceGroups/pfx35-mgmt/providers/Microsoft.Web/connections/office365",
+                    "connectionName": "office365",
+                    "id": "/subscriptions/<redacted>/providers/Microsoft.Web/locations/centralus/managedApis/office365"
+                }
+            }
+        }
+    }
+}
