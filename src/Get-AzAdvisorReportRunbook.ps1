@@ -101,16 +101,12 @@ param
     [string]$ManagementGroupId, #the Id, not the displayName
     [int]$SubscriptionBatchSize = 1000, #max 1000
     [string]$PSModuleRepository = "PSGallery", # Onlinie source for obtaining the AzAPICall module
-    # [string[]]$TargetModules = @("AzAPICall","Az"), # The name of the modules to be downloaded and installed
     [string]$Title = "AZURE ADVISOR CUSTOM COST REPORT:", # The title of the report
     [int]$separatorWidth = 100, # The width of the separator line
     [string]$doubleSeparator = ("-"*$separatorWidth), # The separator used to separate the title from the report
     [string]$singleSeparator = ("-"*$separatorWidth), # The separator used to separate the report sections
-	# [string]$automationAccount = "gfoxautomation",
 	[string]$automationAccount = "automation-account", # Name of automation account
-	# [string]$sub = "gfox Demo",
 	[string]$sub = "subscription-name", # Name of subscription
-	# [string]$subId = "4d1e63b7-e548-4e3b-bee7-e6fe9a865ffe" 
 	[string]$subId = "subscription-id", # Subscription Id
 	[string]$tenantId = "tenant-id", # Tenant Id
 	[string]$staResourceGroup = "resource-group", # Replace with <your> actual resource group name.
